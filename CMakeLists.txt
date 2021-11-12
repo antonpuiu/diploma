@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Set root directory, if needed
 if (NOT GFXF_ROOT_DIR)
@@ -147,7 +148,6 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(__cmake_import_suffix dylib)
 endif()
 
-
 # Link third-party libraries
 target_link_libraries(${target_name} PRIVATE
     ${OPENGL_LIBRARIES}
@@ -160,6 +160,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
         ${GFXF_ROOT_DIR}/deps/prebuilt/assimp/${__cmake_arch}/assimp.lib
         ${GFXF_ROOT_DIR}/deps/prebuilt/spdlog/${__cmake_arch}/spdlog.lib
         ${GFXF_ROOT_DIR}/deps/prebuilt/freetype/${__cmake_arch}/freetype.lib
+        ${GFXF_ROOT_DIR}/deps/prebuilt/imgui/${__cmake_arch}/imgui.lib
     )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     target_link_libraries(${target_name} PRIVATE
@@ -183,6 +184,9 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     )
 endif()
 
+target_link_libraries(${target_name} PRIVATE
+    ${GFXF_ROOT_DIR}/deps/prebuilt/imgui/${__cmake_arch}/libimgui.${__cmake_import_suffix})
+
 if (USE_DEV_COMPONENTS)
     if (NOT TARGET GFXComponents)
         add_subdirectory(src/components_hidden)
@@ -193,7 +197,6 @@ else()
         ${GFXF_ROOT_DIR}/deps/prebuilt/GFXComponents/${__cmake_arch}/GFXComponents.${__cmake_import_suffix}
     )
 endif()
-
 
 # Set target properties
 target_include_directories(${target_name} PRIVATE ${GFXF_INCLUDE_DIRS_PRIVATE})
@@ -316,3 +319,10 @@ if (NOT USE_DEV_COMPONENTS)
         COMMAND ${CMAKE_COMMAND} -E copy_if_different "${GFXF_ROOT_DIR}/deps/prebuilt/GFXComponents/${__cmake_arch}/GFXComponents.${__cmake_shared_suffix}" "${__target_dir}"
     )
 endif()
+
+add_custom_target(run COMMAND ${target_name})
+
+add_custom_command(TARGET ${target_name} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${GFXF_ROOT_DIR}/deps/prebuilt/imgui/${__cmake_arch}/libimgui.${__cmake_shared_suffix}" "${__target_dir}"
+    COMMAND cp compile_commands.json ../
+)

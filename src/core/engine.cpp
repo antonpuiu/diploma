@@ -5,48 +5,52 @@
 #include "core/managers/texture_manager.h"
 #include "utils/gl_utils.h"
 
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
-WindowObject* Engine::window = nullptr;
+WindowObject *Engine::window = nullptr;
 
-
-WindowObject* Engine::Init(const WindowProperties & props)
+WindowObject *Engine::Init(const WindowProperties &props)
 {
-    /* Initialize the library */
-    if (!glfwInit())
-        exit(0);
+	/* Initialize the library */
+	if (!glfwInit())
+		exit(0);
 
-    window = new WindowObject(props);
+	window = new WindowObject(props);
 
-    glewExperimental = true;
-    GLenum err = glewInit();
-    if (GLEW_OK != err)
-    {
-        // Serious problem
-        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
-        exit(0);
-    }
+	glewExperimental = true;
+	GLenum err = glewInit();
+	if (GLEW_OK != err) {
+		// Serious problem
+		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+		exit(0);
+	}
 
-    TextureManager::Init(window->props.selfDir);
+	TextureManager::Init(window->props.selfDir);
 
-    return window;
+	return window;
 }
 
-
-WindowObject* Engine::GetWindow()
+WindowObject *Engine::GetWindow()
 {
-    return window;
+	return window;
 }
-
 
 void Engine::Exit()
 {
-    std::cout << "=====================================================" << std::endl;
-    std::cout << "Engine closed. Exit" << std::endl;
-    glfwTerminate();
-}
+	std::cout << "====================================================="
+		  << std::endl;
+	std::cout << "Engine closed. Exit" << std::endl;
 
+	ImGui_ImplOpenGL3_Shutdown();
+	ImGui_ImplGlfw_Shutdown();
+	ImGui::DestroyContext();
+
+	glfwTerminate();
+}
 
 double Engine::GetElapsedTime()
 {
-    return glfwGetTime();
+	return glfwGetTime();
 }
