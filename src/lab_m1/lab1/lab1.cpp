@@ -14,7 +14,6 @@ using namespace m1;
 Lab1::Lab1()
 {
 	// TODO(student): Never forget to initialize class variables!
-	show_demo = true;
 }
 
 Lab1::~Lab1()
@@ -68,9 +67,6 @@ void Lab1::Update(float deltaTimeSeconds)
 	// was previously loaded. We do this using `RenderMesh`. Check the
 	// signature of this function to see the meaning of its parameters.
 	// You can draw the same mesh any number of times.
-	if (show_demo) {
-		ImGui::ShowDemoWindow(&show_demo);
-	}
 }
 
 void Lab1::FrameEnd()
@@ -97,7 +93,6 @@ void Lab1::OnKeyPress(int key, int mods)
 	// Add key press event
 	if (key == GLFW_KEY_F) {
 		// TODO(student): Change the values of the color components.
-		show_demo = !show_demo;
 	}
 
 	// TODO(student): Add a key press event that will let you cycle

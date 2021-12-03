@@ -16,6 +16,10 @@
 #include "lab_extra/lab_list.h"
 #endif
 
+#if defined(WITH_LAB_GUI)
+#include "lab_gui/lab_list.h"
+#endif
+
 #ifdef _WIN32
 PREFER_DISCRETE_GPU_NVIDIA;
 PREFER_DISCRETE_GPU_AMD;
@@ -41,7 +45,7 @@ int main(int argc, char **argv)
 	(void)Engine::Init(wp);
 
 	// Create a new 3D world and start running it
-	World *world = new m1::Lab1();
+	World *world = new gui::Lab1();
 
 	world->Init();
 	world->Run();

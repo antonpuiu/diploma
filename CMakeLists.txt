@@ -17,7 +17,7 @@ project(${target_name} C CXX)
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 
@@ -25,6 +25,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 include(${GFXF_ROOT_DIR}/infra/utils.cmake)
 custom_set_build_type()
 
+add_subdirectory(deps/api/imgui)
+add_subdirectory(deps/api/zep)
 
 # Fix to hide a bug in CMake. Hopefully able to be removed in the future.
 set(CMAKE_POLICY_DEFAULT_CMP0012 NEW)
@@ -36,14 +38,15 @@ if (NOT CMAKE_SYSTEM_NAME STREQUAL "Windows")
     find_package(GLEW REQUIRED)
     find_package(PkgConfig REQUIRED)
     pkg_search_module(GLFW REQUIRED glfw3)
-    find_package(ASSIMP REQUIRED)
-    find_package(spdlog REQUIRED)
+    # find_package(ASSIMP REQUIRED)
+    # find_package(spdlog REQUIRED)
     find_package(Freetype REQUIRED)
 endif()
 
 
 # Set options
-option(WITH_LAB_M1 "With module 1 labs" ON)
+option(WITH_LAB_GUI "With gui labs" ON)
+option(WITH_LAB_M1 "With module 1 labs" OFF)
 option(WITH_LAB_M2 "With module 2 labs" OFF)
 option(WITH_LAB_EXTRA "With extra labs" OFF)
 option(USE_DEV_COMPONENTS "Use dev components" OFF)
@@ -62,6 +65,9 @@ endif()
 # sources and headers for different courses. If the suffix variables remain
 # empty, the GLOB_RECURSE will look for files in the directory called `lab_`
 # which does not actually exist, but will not fail.
+if (WITH_LAB_GUI)
+    set(SUFFIX_LAB_GUI "gui")
+endif()
 if (WITH_LAB_M1)
     set(SUFFIX_LAB_M1 "m1")
 endif()
@@ -72,7 +78,6 @@ if (WITH_LAB_EXTRA)
     set(SUFFIX_LAB_EXTRA "extra")
 endif()
 
-
 # Gather the source files
 file(GLOB_RECURSE GFXF_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/src/components/*.c*
@@ -81,6 +86,7 @@ file(GLOB_RECURSE GFXF_SOURCES
     #
     ${CMAKE_CURRENT_LIST_DIR}/src/main.cpp
     #
+    ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_GUI}/*.c*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M1}/*.c*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M2}/*.c*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_EXTRA}/*.c*
@@ -95,15 +101,16 @@ file(GLOB_RECURSE GFXF_HEADERS_PRIVATE
     #
     ${CMAKE_CURRENT_LIST_DIR}/res/*.glsl
     #
+    ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_GUI}/*.h*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M1}/*.h*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M2}/*.h*
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_EXTRA}/*.h*
     #
+    ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_GUI}/*.glsl
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M1}/*.glsl
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_M2}/*.glsl
     ${CMAKE_CURRENT_LIST_DIR}/src/lab_${SUFFIX_LAB_EXTRA}/*.glsl
 )
-
 
 # Gather the include directories
 set(GFXF_INCLUDE_DIRS_PRIVATE
@@ -111,14 +118,12 @@ set(GFXF_INCLUDE_DIRS_PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/src
 )
 
-
-# Add the executable
+# Add the executablee
 custom_add_executable(${target_name}
     ${GFXF_SOURCES}
     ${GFXF_SOURCES_HIDDEN}
     ${GFXF_HEADERS_PRIVATE}
 )
-
 
 # Detect architecture
 if (CMAKE_SIZEOF_VOID_P EQUAL 8)
@@ -184,8 +189,8 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     )
 endif()
 
-target_link_libraries(${target_name} PRIVATE
-    ${GFXF_ROOT_DIR}/deps/prebuilt/imgui/${__cmake_arch}/libimgui.${__cmake_import_suffix})
+target_link_libraries(${target_name} PRIVATE imgui zep)
+    # ${CMAKE_BINARY_DIR}/deps/api/imgui/libimgui.${__cmake_import_suffix})
 
 if (USE_DEV_COMPONENTS)
     if (NOT TARGET GFXComponents)
@@ -224,6 +229,9 @@ source_group(TREE ${CMAKE_CURRENT_LIST_DIR} FILES
 # Add definitions (specific to this project)
 # Recommended reading: so@a/24470998/5922876, so@a/11437693/5922876
 set(GFXF_CXX_DEFS       LIBGFXC_EXPORTS GLM_FORCE_SILENT_WARNINGS _CRT_SECURE_NO_WARNINGS SOLVED $<$<CONFIG:Debug>:DEBUG>)
+if (WITH_LAB_GUI)
+    set(GFXF_CXX_DEFS   ${GFXF_CXX_DEFS} WITH_LAB_GUI)
+endif()
 if (WITH_LAB_M1)
     set(GFXF_CXX_DEFS   ${GFXF_CXX_DEFS} WITH_LAB_M1)
 endif()
@@ -323,6 +331,7 @@ endif()
 add_custom_target(run COMMAND ${target_name})
 
 add_custom_command(TARGET ${target_name} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${GFXF_ROOT_DIR}/deps/prebuilt/imgui/${__cmake_arch}/libimgui.${__cmake_shared_suffix}" "${__target_dir}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/deps/api/imgui/libimgui.${__cmake_shared_suffix}" "${__target_dir}"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/deps/api/zep/libzep.${__cmake_shared_suffix}" "${__target_dir}"
     COMMAND cp compile_commands.json ../
 )

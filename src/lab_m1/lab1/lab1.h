@@ -30,6 +30,5 @@ class Lab1 : public gfxc::SimpleScene {
 	void OnWindowResize(int width, int height) override;
 
 	// TODO(student): Class variables go here
-	bool show_demo;
 };
 } // namespace m1

@@ -7,18 +7,16 @@
 #include "core/window/window_callbacks.h"
 
 #include "utils/gl_utils.h"
+#include "utils/gui_utils.h"
 #include "utils/memory_utils.h"
 #include "utils/window_utils.h"
-
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
 
 /*
  *  Implementation of the opaque window handle
  */
 struct WindowDataImpl {
 	GLFWwindow *handle;
+	ImGuiContext *guiHandle;
 };
 
 WindowProperties::WindowProperties()
@@ -64,7 +62,11 @@ WindowObject::WindowObject(WindowProperties properties) : props(properties)
 	SetVSync(props.vSync);
 
 	// Setup ImGui context
-	ImGui::CreateContext();
+	window->guiHandle = ImGui::CreateContext();
+	ImGuiIO &io = ImGui::GetIO();
+
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	// Setup ImGui style
 	ImGui::StyleColorsDark();
@@ -213,6 +215,7 @@ void WindowObject::WindowMode()
 	if (!glfwInit()) {
 		fprintf(stderr, "Failed to initialize GLFW\n");
 	}
+
 	window->handle =
 		glfwCreateWindow(props.resolution.x, props.resolution.y,
 				 props.name.c_str(), NULL, NULL);
