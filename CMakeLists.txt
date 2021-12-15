@@ -12,6 +12,8 @@ endif()
 set(target_name GFXFramework)
 project(${target_name} C CXX)
 
+add_definitions(-g)
+
 
 # Use C99 and C++11
 set(CMAKE_C_STANDARD 99)

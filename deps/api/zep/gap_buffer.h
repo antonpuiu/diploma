@@ -711,9 +711,7 @@ template <class T, class A = std::allocator<T> > class GapBuffer {
 
 	const_reference operator[](size_type pos) const
 	{
-		if (pos < size())
-			return *GetGaplessPtr(pos + 1);
-
+		assert(pos < size());
 		return *GetGaplessPtr(pos);
 	}
 

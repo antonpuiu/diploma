@@ -58,7 +58,7 @@ struct ZepContainer : public IZepComponent {
 		if (!startupFilePath.empty()) {
 			spEditor->InitWithFileOrDir(startupFilePath);
 		} else {
-			spEditor->InitWithText("Empty file", "");
+			spEditor->InitWithText("Empty file", string());
 		}
 	}
 
