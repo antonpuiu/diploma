@@ -3,31 +3,19 @@
 #include <components/simple_scene.h>
 #include <fstream>
 
-#include <zep/filesystem.h>
-#include <zep/imgui/display_imgui.h>
-#include <zep/imgui/editor_imgui.h>
-#include <zep/mode_standard.h>
-#include <zep/mode_vim.h>
-#include <zep/regress.h>
-#include <zep/tab_window.h>
-#include <zep/theme.h>
-#include <zep/window.h>
-
-#include "zep/filesystem.h"
-#include "zep/imgui/display_imgui.h"
-#include "zep/imgui/editor_imgui.h"
-#include "zep/mode_standard.h"
-#include "zep/mode_vim.h"
-#include "zep/tab_window.h"
-#include "zep/theme.h"
-#include "zep/window.h"
-#include <zep/regress.h>
+#include <imgui/display_imgui.h>
+#include <imgui/editor_imgui.h>
+#include <mode_standard.h>
+#include <mode_vim.h>
+#include <tab_window.h>
+#include <theme.h>
+#include <window.h>
 
 #include <imgui/imgui_freetype.h>
 
 using std::fstream;
 
-struct ZepContainerImGui;
+struct ZepContainer;
 
 namespace gui
 {
@@ -57,10 +45,10 @@ class Lab1 : public gfxc::SimpleScene {
 	void OnWindowResize(int width, int height) override;
 
 	ImGuiWindowFlags fpsWindowFlags;
-	bool showFPS;
+	bool showZep;
 	const char *fileToEdit;
 	bool quit;
 	fstream file;
-	ZepContainerImGui *zep;
+	ZepContainer *zep;
 };
 } // namespace gui

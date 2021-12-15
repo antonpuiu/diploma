@@ -62,19 +62,16 @@ WindowObject::WindowObject(WindowProperties properties) : props(properties)
 	SetVSync(props.vSync);
 
 	// Setup ImGui context
-	window->guiHandle = ImGui::CreateContext();
+	ImGui::CreateContext();
 	ImGuiIO &io = ImGui::GetIO();
+	(void)io;
 
-	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+	// io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
 	// Setup ImGui style
 	ImGui::StyleColorsDark();
 	//ImGui::StyleColorsClassic();
-
-	// Setup ImGui backends
-	ImGui_ImplGlfw_InitForOpenGL(window->handle, true);
-	ImGui_ImplOpenGL3_Init("#version 330");
 
 	// Set default state
 	mouseButtonAction = 0;
@@ -84,6 +81,10 @@ WindowObject::WindowObject(WindowProperties properties) : props(properties)
 	memset(keyScanCode, 0, 512);
 
 	SetWindowCallbacks();
+
+	// Setup ImGui backends
+	ImGui_ImplGlfw_InitForOpenGL(window->handle, true);
+	ImGui_ImplOpenGL3_Init("#version 130");
 }
 
 WindowObject::~WindowObject()
