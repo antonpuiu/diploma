@@ -25,33 +25,43 @@ PREFER_DISCRETE_GPU_NVIDIA;
 PREFER_DISCRETE_GPU_AMD;
 #endif
 
-std::string GetParentDir(const std::string &filePath)
-{
-	size_t pos = filePath.find_last_of("\\/");
-	return (std::string::npos == pos) ? "." : filePath.substr(0, pos);
+std::string GetParentDir(const std::string &filePath) {
+  size_t pos = filePath.find_last_of("\\/");
+  return (std::string::npos == pos) ? "." : filePath.substr(0, pos);
 }
 
-int main(int argc, char **argv)
-{
-	srand((unsigned int)time(NULL));
+#include <pybind11/embed.h>
+#include <pybind11/pybind11.h>
 
-	// Create a window property structure
-	WindowProperties wp;
-	wp.resolution = glm::ivec2(1280, 720);
-	wp.vSync = true;
-	wp.selfDir = GetParentDir(std::string(argv[0]));
+#include <iostream>
+using namespace std;
 
-	// Init the Engine and create a new window with the defined properties
-	(void)Engine::Init(wp);
+namespace py = pybind11;
 
-	// Create a new 3D world and start running it
-	World *world = new gui::Lab1();
+int main(int argc, char **argv) {
+  srand((unsigned int)time(NULL));
 
-	world->Init();
-	world->Run();
+  // Create a window property structure
+  WindowProperties wp;
+  wp.resolution = glm::ivec2(1280, 720);
+  wp.vSync = true;
+  wp.selfDir = GetParentDir(std::string(argv[0]));
 
-	// Signals to the Engine to release the OpenGL context
-	Engine::Exit();
+  // Init the Engine and create a new window with the defined properties
+  (void)Engine::Init(wp);
 
-	return 0;
+  // Create a new 3D world and start running it
+  auto main = py::module_::import("py_src.main");
+  main.attr("main")();
+
+  // Create a new 3D world and start running it
+  // World *world = new gui::Lab1();
+
+  // world->Init();
+  // world->Run();
+
+  // Signals to the Engine to release the OpenGL context
+  Engine::Exit();
+
+  return 0;
 }

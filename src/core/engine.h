@@ -6,19 +6,17 @@
 
 #include "core/window/window_object.h"
 
+class Engine {
+public:
+  static WindowObject *Init(const WindowProperties &props);
 
-class Engine
-{
- public:
-    static WindowObject* Init(const WindowProperties &props);
+  static WindowObject *GetWindow();
 
-    static WindowObject* GetWindow();
+  // Get elapsed time in seconds since the application started
+  static double GetElapsedTime();
 
-    // Get elapsed time in seconds since the application started
-    static double GetElapsedTime();
+  static void Exit();
 
-    static void Exit();
-
- private:
-    static WindowObject* window;
+private:
+  static WindowObject *window;
 };

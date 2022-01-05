@@ -29,6 +29,7 @@ custom_set_build_type()
 
 add_subdirectory(deps/api/imgui)
 add_subdirectory(deps/api/zep)
+add_subdirectory(deps/api/pybind11)
 
 # Fix to hide a bug in CMake. Hopefully able to be removed in the future.
 set(CMAKE_POLICY_DEFAULT_CMP0012 NEW)
@@ -48,7 +49,7 @@ endif()
 
 # Set options
 option(WITH_LAB_GUI "With gui labs" ON)
-option(WITH_LAB_M1 "With module 1 labs" OFF)
+option(WITH_LAB_M1 "With module 1 labs" ON)
 option(WITH_LAB_M2 "With module 2 labs" OFF)
 option(WITH_LAB_EXTRA "With extra labs" OFF)
 option(USE_DEV_COMPONENTS "Use dev components" OFF)
@@ -82,6 +83,7 @@ endif()
 
 # Gather the source files
 file(GLOB_RECURSE GFXF_SOURCES
+    ${CMAKE_CURRENT_LIST_DIR}/src/binding/*.c*
     ${CMAKE_CURRENT_LIST_DIR}/src/components/*.c*
     ${CMAKE_CURRENT_LIST_DIR}/src/core/*.c*
     ${CMAKE_CURRENT_LIST_DIR}/src/utils/*.c*
@@ -117,6 +119,8 @@ file(GLOB_RECURSE GFXF_HEADERS_PRIVATE
 # Gather the include directories
 set(GFXF_INCLUDE_DIRS_PRIVATE
     ${GFXF_ROOT_DIR}/deps/api
+    ${GFXF_ROOT_DIR}/deps/api/pybind11/include
+    /usr/include/python3.9/
     ${CMAKE_CURRENT_LIST_DIR}/src
 )
 
@@ -158,6 +162,7 @@ endif()
 # Link third-party libraries
 target_link_libraries(${target_name} PRIVATE
     ${OPENGL_LIBRARIES}
+    pybind11::embed
 )
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
@@ -176,6 +181,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
         assimp
         spdlog
         freetype
+        pybind11::embed
     )
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     # Fix linking on 10.14+. See https://stackoverflow.com/questions/54068035
@@ -330,10 +336,14 @@ if (NOT USE_DEV_COMPONENTS)
     )
 endif()
 
-add_custom_target(run COMMAND ${target_name})
+add_custom_target(run
+    COMMAND ${target_name}
+    WORKING_DIRECTORY ${__target_dir}/${dir}
+)
 
 add_custom_command(TARGET ${target_name} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/deps/api/imgui/libimgui.${__cmake_shared_suffix}" "${__target_dir}"
     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_BINARY_DIR}/deps/api/zep/libzep.${__cmake_shared_suffix}" "${__target_dir}"
+    COMMAND ln -f -s "${CMAKE_SOURCE_DIR}/py_src/" "${__target_dir}/${dir}"
     COMMAND cp compile_commands.json ../
 )
