@@ -1,0 +1,3 @@
+[submodule "deps/api/pybind11"]
+	path = deps/api/pybind11
+	url = https://github.com/pybind/pybind11
