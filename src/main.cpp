@@ -53,14 +53,16 @@ int main(int argc, char** argv)
     (void)Engine::Init(wp);
 
     // Create a new 3D world and start running it
-    // auto main = py::module_::import("py_src.main");
-    // main.attr("main")();
+
+    // Python entry point
+    auto main = py::module_::import("py_src.main");
+    main.attr("main")();
 
     // Create a new 3D world and start running it
-    World* world = new gui::Lab1();
+    // World* world = new gui::Lab1();
 
-    world->Init();
-    world->Run();
+    // world->Init();
+    // world->Run();
 
     // Signals to the Engine to release the OpenGL context
     Engine::Exit();
